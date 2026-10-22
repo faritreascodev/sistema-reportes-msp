@@ -1,0 +1,62 @@
+{
+  "name": "sistema-reportes-msp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Generador, historial, exportación DOCX/PDF y firma electrónica (.p12) de Reportes de Verificable de Actividades de Promoción - MSP",
+  "scripts": {
+    "setup": "npm install && node -e \"require('fs').mkdirSync('storage',{recursive:true})\" && npm run db:push && npm run db:seed",
+    "dev": "next dev --port 3100",
+    "build": "prisma generate && next build",
+    "start": "next start --port 3100",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "cert:dev": "tsx scripts/generate-dev-cert.ts",
+    "test": "tsx --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "@signpdf/placeholder-pdf-lib": "4.0.0",
+    "@signpdf/signpdf": "4.0.0",
+    "@signpdf/utils": "4.0.0",
+    "clsx": "^2.1.1",
+    "cropperjs": "1.6.2",
+    "lucide-react": "1.61.0",
+    "next": "16.4.2",
+    "node-forge": "1.4.0",
+    "pdf-lib": "1.17.1",
+    "pizzip": "3.3.0",
+    "puppeteer": "25.15.0",
+    "qrcode": "1.5.4",
+    "react": "19.3.1",
+    "react-cropper": "2.3.3",
+    "react-dom": "19.3.1",
+    "sharp": "0.35.5",
+    "tailwind-merge": "^3.3.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "^24",
+    "@types/node-forge": "^1.3.14",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^17.2.1",
+    "prisma": "7.10.1",
+    "tailwindcss": "4.3.3",
+    "tsx": "^4.20.4",
+    "typescript": "^5.9.2"
+  },
+  "allowScripts": {
+    "better-sqlite3@12.11.1": true,
+    "better-sqlite3@13.0.3": true,
+    "@prisma/engines@7.10.1": true,
+    "esbuild@0.28.2": true,
+    "prisma@7.10.1": true,
+    "puppeteer@25.15.0": true
+  }
+}

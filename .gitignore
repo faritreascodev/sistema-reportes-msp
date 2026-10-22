@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+storage/
+*.tsbuildinfo
+next-env.d.ts
+.env
+src/generated/
+# Nunca versionar certificados ni claves
+*.p12
+*.pfx
+*.pem
+.claude/
+
