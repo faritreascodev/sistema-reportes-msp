@@ -1,0 +1,19 @@
+services:
+  reportes:
+    build: .
+    image: reportes-msp:latest
+    container_name: reportes-msp
+    ports:
+      - "3100:3100"
+    environment:
+      TZ: America/Guayaquil
+      SIGN_LOCATION: "Esmeraldas, Ecuador"
+      SIGN_REASON: "Reporte de verificable de actividades de promoción"
+      SIGN_SUBFILTER: "adbe.pkcs7.detached"
+    volumes:
+      # Base de datos SQLite, imágenes y PDF firmados persisten fuera del contenedor
+      - reportes-data:/app/storage
+    restart: unless-stopped
+
+volumes:
+  reportes-data:

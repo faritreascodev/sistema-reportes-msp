@@ -1,0 +1,45 @@
+# Docker Compose para Producción en Dokploy
+# Dominio configurado: reportes-msp.multiprodo.com
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: reportes-msp:prod
+    container_name: reportes-msp-prod
+    restart: always
+    ports:
+      - "3100:3100"
+    environment:
+      NODE_ENV: production
+      PORT: 3100
+      TZ: America/Guayaquil
+      DATABASE_URL: "file:/app/storage/reportes.db"
+      STORAGE_DIR: "/app/storage"
+      AUTH_SECRET: "${AUTH_SECRET:-msp-secret-dokploy-farit-2026-multiprodo}"
+      SIGN_LOCATION: "Esmeraldas, Ecuador"
+      SIGN_REASON: "Reporte de verificable de actividades de promoción"
+      SIGN_SUBFILTER: "adbe.pkcs7.detached"
+      MAX_CONCURRENT_PDF: "2"
+      MAX_QUEUE_PDF: "10"
+      NEXT_TELEMETRY_DISABLED: "1"
+    volumes:
+      # Persistencia de SQLite, fotos subidas y PDFs firmados
+      - reportes-prod-data:/app/storage
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3100/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.reportes-msp.rule=Host(`reportes-msp.multiprodo.com`)"
+      - "traefik.http.routers.reportes-msp.entrypoints=websecure"
+      - "traefik.http.routers.reportes-msp.tls=true"
+      - "traefik.http.routers.reportes-msp.tls.certresolver=letsencrypt"
+      - "traefik.http.services.reportes-msp.loadbalancer.server.port=3100"
+
+volumes:
+  reportes-prod-data:
+    name: reportes-msp-prod-storage
