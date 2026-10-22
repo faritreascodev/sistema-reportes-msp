@@ -1,0 +1,113 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// Reporte de verificable de actividades de promoción (estado actual / última versión).
+model Report {
+  id              String   @id @default(cuid())
+  userId          String?
+  fileName        String
+  status          String   @default("BORRADOR") // BORRADOR | CONSOLIDADO
+  version         Int      @default(1)
+  encabezado      String
+  /// 4 líneas del membrete institucional (encabezado de página)
+  institucion     Json
+  componente      String
+  tema            String
+  fechaActividad  DateTime
+  fechaTexto      String
+  lugar           String
+  hora            String
+  tecnica         String
+  /// [{ nombres, cargo }]
+  responsables    Json
+  coordinada      Boolean  @default(false)
+  /// [{ nombre, institucion, cargo }]
+  coordinados     Json
+  registroImageId String?
+  /// [imageId | null] x 4 (grilla 2x2)
+  fotoIds         Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user       User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions   ReportVersion[]
+  signatures Signature[]
+
+  @@index([userId])
+  @@index([fechaActividad])
+  @@index([componente])
+  @@index([status])
+}
+
+/// Usuario del sistema (Admin o Funcionario)
+model User {
+  id           String   @id @default(cuid())
+  cedula       String   @unique
+  nombre       String
+  cargo        String?
+  passwordHash String
+  role         String   @default("USER") // ADMIN | USER
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  reports Report[]
+
+  @@index([cedula])
+  @@index([role])
+}
+
+/// Instantánea inmutable de cada versión guardada del reporte.
+model ReportVersion {
+  id        String   @id @default(cuid())
+  reportId  String
+  version   Int
+  snapshot  Json
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@unique([reportId, version])
+}
+
+/// Imagen optimizada en disco. Los recortes guardan su imagen fuente para poder re-recortar.
+model ImageAsset {
+  id           String   @id @default(cuid())
+  path         String
+  mime         String
+  width        Int
+  height       Int
+  size         Int
+  originalName String?
+  sourceId     String?
+  createdAt    DateTime @default(now())
+}
+
+/// PDF firmado electrónicamente con un certificado PKCS#12.
+model Signature {
+  id            String   @id @default(cuid())
+  reportId      String
+  reportVersion Int
+  signerName    String
+  signerId      String?
+  issuer        String
+  serialNumber  String
+  fingerprint   String
+  subFilter     String
+  signedAt      DateTime @default(now())
+  pdfPath       String
+  sha256        String
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+}
