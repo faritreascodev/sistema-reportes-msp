@@ -39,7 +39,13 @@ services:
       - "traefik.http.routers.reportes-msp.tls=true"
       - "traefik.http.routers.reportes-msp.tls.certresolver=letsencrypt"
       - "traefik.http.services.reportes-msp.loadbalancer.server.port=3100"
+    networks:
+      - dokploy-network
 
 volumes:
   reportes-prod-data:
     name: reportes-msp-prod-storage
+
+networks:
+  dokploy-network:
+    external: true
