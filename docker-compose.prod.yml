@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      network: host
     image: reportes-msp:prod
     container_name: reportes-msp-prod
     restart: always
