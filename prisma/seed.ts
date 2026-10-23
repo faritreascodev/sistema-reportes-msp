@@ -40,10 +40,10 @@ async function main() {
   // 2. Crear Cuenta de Mercedes Torres (Madre)
   const madre = await prisma.user.create({
     data: {
-      cedula: "0801234567",
+      cedula: "0802058123",
       nombre: "ING. MARÍA DE LAS MERCEDES TORRES ESCOBAR",
       cargo: "ASISTENTE DE ADMISIÓN Y ATENCIÓN AL USUARIO",
-      passwordHash: hashPassword("mercedes123"),
+      passwordHash: hashPassword("mercedes2026@"),
       role: "USER",
       active: true,
     },
