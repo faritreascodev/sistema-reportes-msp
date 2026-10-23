@@ -1,4 +1,6 @@
 import type { NextRequest } from "next/server";
+import { prisma } from "@/lib/server/db";
+import { getSession } from "@/lib/server/auth";
 import { signReport } from "@/lib/server/documents";
 import { fileResponse, handle, jsonError, MIME } from "@/lib/server/http";
 
@@ -12,6 +14,14 @@ const MAX_CERT_BYTES = 64 * 1024;
  */
 export const POST = handle(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
+  const session = await getSession();
+
+  // Control RBAC: validar que el usuario tenga acceso a este reporte
+  const report = await prisma.report.findUnique({ where: { id }, select: { userId: true } });
+  if (!report) return jsonError(404, "Reporte no encontrado");
+  if (session && session.role !== "ADMIN" && report.userId && report.userId !== session.userId) {
+    return jsonError(403, "No tiene permisos para firmar este reporte");
+  }
   const form = await req.formData();
   const file = form.get("certificado");
   const password = form.get("password");

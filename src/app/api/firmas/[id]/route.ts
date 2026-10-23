@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/server/db";
-import { fileResponse, handle, MIME } from "@/lib/server/http";
+import { getSession } from "@/lib/server/auth";
+import { fileResponse, handle, jsonError, MIME } from "@/lib/server/http";
 import { NotFoundError } from "@/lib/server/reports";
 import { verifyPdfSignatures } from "@/lib/server/signing/verify";
 import { readStorage } from "@/lib/server/storage";
@@ -10,8 +11,16 @@ export const runtime = "nodejs";
 /** GET /api/firmas/:id -> PDF firmado.  ?verificar=1 -> resultado de la verificación criptográfica. */
 export const GET = handle(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
-  const sig = await prisma.signature.findUnique({ where: { id }, include: { report: { select: { fileName: true } } } });
+  const sig = await prisma.signature.findUnique({
+    where: { id },
+    include: { report: { select: { fileName: true, userId: true } } },
+  });
   if (!sig) throw new NotFoundError("Firma");
+
+  const session = await getSession();
+  if (session && session.role !== "ADMIN" && sig.report.userId && sig.report.userId !== session.userId) {
+    return jsonError(403, "No tiene permisos para acceder a este documento firmado");
+  }
   const pdf = await readStorage(sig.pdfPath);
   if (req.nextUrl.searchParams.get("verificar")) {
     return Response.json({ signatures: verifyPdfSignatures(pdf) });

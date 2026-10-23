@@ -281,20 +281,42 @@ export function ReportEditor({
 
           <Card>
             <CardHeader icon={<Clock className="h-4 w-4" />} title="Datos de la actividad" />
-            <div className="grid gap-3 p-4 sm:grid-cols-2">
+            <div className="grid gap-3.5 p-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
-                <Label htmlFor="componente">Componente</Label>
-                <Input id="componente" list="componentes" value={data.componente} onChange={text("componente")} placeholder="SALUD SEXUAL Y REPRODUCTIVA" />
+                <Label htmlFor="componente">Componente del MSP</Label>
+                <Input id="componente" list="componentes" value={data.componente} onChange={text("componente")} placeholder="Ej. SALUD SEXUAL Y REPRODUCTIVA" />
                 <datalist id="componentes">
                   {allComponentes.map((c) => (
                     <option key={c} value={c} />
                   ))}
                 </datalist>
+                <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                  <span className="text-[10px] text-gray-400 font-medium mr-1">Sugeridos:</span>
+                  {[
+                    "SALUD SEXUAL Y REPRODUCTIVA",
+                    "NUTRICIÓN",
+                    "INMUNIZACIONES",
+                    "SALUD MENTAL",
+                    "MATERNO INFANTIL",
+                    "PREVENCIÓN DENGUE",
+                  ].map((sug) => (
+                    <button
+                      key={sug}
+                      type="button"
+                      onClick={() => update("componente", sug)}
+                      className="rounded-full bg-gray-100 hover:bg-brand-50 hover:text-brand-700 px-2 py-0.5 text-[10px] font-medium text-gray-600 transition cursor-pointer"
+                    >
+                      + {sug}
+                    </button>
+                  ))}
+                </div>
               </div>
+
               <div className="sm:col-span-2">
-                <Label htmlFor="tema">Tema</Label>
-                <Textarea id="tema" rows={2} value={data.tema} onChange={text("tema")} placeholder="171 OPCIÓN 2" />
+                <Label htmlFor="tema">Tema o Asunto Central</Label>
+                <Textarea id="tema" rows={2} value={data.tema} onChange={text("tema")} placeholder="Ej. LÍNEA 171 OPCIÓN 2 Y AGENDAMIENTO DE CITAS MÉDICAS" />
               </div>
+
               <div>
                 <Label htmlFor="fecha">Fecha de la actividad</Label>
                 <Input
@@ -304,47 +326,63 @@ export function ReportEditor({
                   onChange={(e) => setData((d) => ({ ...d, fechaActividad: e.target.value, fechaTexto: fechaATexto(e.target.value) || d.fechaTexto }))}
                 />
               </div>
+
               <div>
-                <Label htmlFor="fechaTexto" hint="se genera de la fecha">
+                <Label htmlFor="fechaTexto" hint="generado automáticamente">
                   Fecha (texto en el reporte)
                 </Label>
                 <Input id="fechaTexto" value={data.fechaTexto} onChange={text("fechaTexto")} />
               </div>
+
               <div>
-                <Label htmlFor="lugar">Lugar</Label>
-                <Input id="lugar" value={data.lugar} onChange={text("lugar")} />
+                <Label htmlFor="lugar">Lugar de Ejecución</Label>
+                <Input id="lugar" value={data.lugar} onChange={text("lugar")} placeholder="Ej. SALA DE ESPERA / COMUNIDAD" />
               </div>
+
               <div>
-                <Label htmlFor="tecnica">Técnica utilizada</Label>
-                <Input id="tecnica" list="tecnicas" value={data.tecnica} onChange={text("tecnica")} />
+                <Label htmlFor="tecnica">Técnica Utilizada</Label>
+                <Input id="tecnica" list="tecnicas" value={data.tecnica} onChange={text("tecnica")} placeholder="Ej. CHARLA EDUCATIVA" />
                 <datalist id="tecnicas">
                   {TECNICAS_SUGERIDAS.map((c) => (
                     <option key={c} value={c} />
                   ))}
                 </datalist>
+                <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                  {["CHARLA EDUCATIVA", "TALLER PARTICIPATIVO", "VISITA DOMICILIARIA", "DEMOSTRACIÓN"].map((tec) => (
+                    <button
+                      key={tec}
+                      type="button"
+                      onClick={() => update("tecnica", tec)}
+                      className="rounded-full bg-gray-100 hover:bg-brand-50 hover:text-brand-700 px-2 py-0.5 text-[10px] font-medium text-gray-600 transition cursor-pointer"
+                    >
+                      {tec}
+                    </button>
+                  ))}
+                </div>
               </div>
+
               <div className="sm:col-span-2">
-                <Label htmlFor="hora" hint="o use el asistente →">
-                  Hora
+                <Label htmlFor="hora" hint="formato texto o selector">
+                  Horario de la Actividad
                 </Label>
                 <div className="flex flex-wrap gap-2">
-                  <Input id="hora" className="min-w-[220px] flex-1" value={data.hora} onChange={text("hora")} />
+                  <Input id="hora" className="min-w-[200px] flex-1" value={data.hora} onChange={text("hora")} placeholder="07:45 A 08:15" />
                   <div className="flex items-center gap-1.5 text-xs text-gray-500">
                     <Input
                       type="time"
                       aria-label="Hora de inicio"
-                      className="w-[120px]"
+                      className="w-[110px]"
                       value={horaInicio}
                       onChange={(e) => {
                         setHoraInicio(e.target.value);
                         update("hora", rangoHoras(e.target.value, horaFin));
                       }}
                     />
-                    a
+                    <span>a</span>
                     <Input
                       type="time"
                       aria-label="Hora de fin"
-                      className="w-[120px]"
+                      className="w-[110px]"
                       value={horaFin}
                       onChange={(e) => {
                         setHoraFin(e.target.value);
@@ -352,6 +390,19 @@ export function ReportEditor({
                       }}
                     />
                   </div>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                  <span className="text-[10px] text-gray-400 font-medium mr-1">Horarios frecuentes:</span>
+                  {["07:45 A 08:15", "08:00 A 09:00", "09:00 A 10:00", "10:30 A 11:30", "14:00 A 15:00"].map((rango) => (
+                    <button
+                      key={rango}
+                      type="button"
+                      onClick={() => update("hora", rango)}
+                      className="rounded-full bg-gray-100 hover:bg-brand-50 hover:text-brand-700 px-2 py-0.5 text-[10px] font-medium text-gray-600 transition cursor-pointer"
+                    >
+                      {rango}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
