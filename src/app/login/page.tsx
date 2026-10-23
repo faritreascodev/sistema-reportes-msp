@@ -43,9 +43,8 @@ export default function LoginPage() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push("/");
-        router.refresh();
-      }, 500);
+        window.location.href = data.user.role === "ADMIN" ? "/admin" : "/";
+      }, 400);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión");
       setLoading(false);
